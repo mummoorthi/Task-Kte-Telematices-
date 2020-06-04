@@ -1,70 +1,69 @@
 package com.example.moorthi.taskkttelematices
 
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.example.moorthi.taskkttelematices.Adapter.MypagerAdapter
-import com.example.moorthi.taskkttelematices.Database.Realm
 import com.example.moorthi.taskkttelematices.Fragment.ListFragment
 import com.example.moorthi.taskkttelematices.Fragment.MapFragment
+import com.example.moorthi.taskkttelematices.Fragment.PermissionFragment
+import com.example.moorthi.taskkttelematices.model.Controller
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), LocationListener {
-    private var LOCATION_PERMISSION = 1;
+
     var mLocationManager: LocationManager? = null
+    var adapter: MypagerAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION
-            )
-        }
+        adapter = MypagerAdapter(supportFragmentManager)
+        checkPermission()
 
-        //  setSupportActionBar(toolbar)
+    }
 
-        val adapter = MypagerAdapter(supportFragmentManager)
-        adapter.addFragment(MapFragment(), "Map")
-        adapter.addFragment(ListFragment(), "List Location")
+    fun checkPermission() {
+        loadPermissionUI()
+    }
+
+    fun loadUI() {
+        adapter?.removeAllFragment()
+        adapter?.addFragment(MapFragment(), "Map")
+        adapter?.addFragment(ListFragment(), "List Location")
         viewPager.adapter = adapter
         tabs.setupWithViewPager(viewPager)
+        loadLocation()
+        tabs.visibility = View.VISIBLE
     }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == LOCATION_PERMISSION) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(permissions[0])) {
-                showMessage("Please grant location access permission")
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    private fun loadPermissionUI() {
+        adapter?.removeAllFragment()
+        adapter?.addFragment(PermissionFragment(), "Permission")
+        viewPager.adapter = adapter
+        tabs.setupWithViewPager(viewPager)
+        tabs.visibility = View.GONE
     }
+
 
     fun showMessage(message: String) {
         Snackbar.make(objParent, message, Snackbar.LENGTH_LONG).show()
     }
 
+    @SuppressLint("MissingPermission")
     fun loadLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return
+        if (mLocationManager == null) {
+            mLocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            showMessage("Starting gps")
+            mLocationManager?.requestLocationUpdates(900000, 0f, getCriteria(), this, null)
         }
-        mLocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        showMessage("Starting gps")
-        mLocationManager?.requestLocationUpdates(0, 0f, getCriteria(), this, null)
-
     }
 
     private fun getCriteria(): Criteria {
@@ -78,9 +77,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(p0: Location?) {
-        if (p0!=null){
-            Realm.insertLocation(p0.latitude,p0.longitude)
-
+        if (p0 != null) {
+            Controller.insertLocation(p0.latitude, p0.longitude)
         }
     }
 
@@ -99,6 +97,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     override fun onDestroy() {
         super.onDestroy()
         mLocationManager?.removeUpdates(this)
+        mLocationManager = null
     }
 }
 

@@ -1,12 +1,12 @@
 package com.example.moorthi.taskkttelematices.Adapter
 
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.moorthi.taskkttelematices.model.Controller
 import com.example.moorthi.taskkttelematices.Fragment.ItemMoveCallbackListener
 import com.example.moorthi.taskkttelematices.Fragment.listCallback
 import com.example.moorthi.taskkttelematices.Interface.OnStartDragListener
@@ -65,7 +65,7 @@ class LocationAdapter (private val startDragListener: OnStartDragListener, var l
     fun removeItem(position: Int) {
         val location = locations?.get(position)
         //locations?.removeAt(position)
-        com.example.moorthi.taskkttelematices.Database.Realm.delete(location!!.id)
+        Controller.delete(location!!.id)
         notifyItemRemoved(position)
     }
 

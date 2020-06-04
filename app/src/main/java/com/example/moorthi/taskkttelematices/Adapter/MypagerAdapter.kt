@@ -25,4 +25,9 @@ class MypagerAdapter (supportFragmentManager: FragmentManager) : FragmentStatePa
         mFragmentList.add(fragment)
         mFragmentTitleList.add(title)
     }
+
+    fun removeAllFragment(){
+        mFragmentList.clear()
+        mFragmentTitleList.clear()
+    }
 }

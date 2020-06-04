@@ -1,13 +1,16 @@
 package com.example.moorthi.taskkttelematices.Fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,24 +29,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 
 
-class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
+class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     private lateinit var mContext: MainActivity
     private var mMap: GoogleMap? = null
-    val PERMISSION_ID = 42
-    private var LOCATION_PERMISSION = 1;
-    var mLocationManager: LocationManager? = null
-    var latitude :Double? =null
-    var longitude :Double? =null
-    var markerName: Marker? = null
 
+    var mLocationManager: LocationManager? = null
+    var latitude: Double? = null
+    var longitude: Double? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view: View = inflater.inflate(R.layout.fragemnt_map, container, false)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -51,9 +50,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
         if (bundle != null) {
             latitude = arguments!!.getDouble("latitude")
             longitude = arguments!!.getDouble("logitude")
-            print("SHOWVALUE " + latitude+" "+longitude)
 
-        }else{
+        } else {
             loadLocation()
         }
         var fab = view.findViewById(R.id.fabmap) as FloatingActionButton
@@ -61,7 +59,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
         fab.setOnClickListener { view ->
             val tabs =
                 (activity as MainActivity?)!!.findViewById<View>(R.id.tabs) as TabLayout
-               tabs.getTabAt(1)!!.select()
+            tabs.getTabAt(1)!!.select()
 
         }
         return view
@@ -69,10 +67,17 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        if (latitude!=null && longitude!= null){
-            val sydney = LatLng(latitude!!, longitude!!)
-            markerName = mMap!!.addMarker(MarkerOptions().position(sydney).title("Race Start").snippet("Latitdude "+latitude+"  Longidude "+longitude).draggable(true))
-            mMap!!.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        Log.e("map", "Ready")
+        if (latitude != null && longitude != null) {
+            val locationlat = LatLng(latitude!!, longitude!!)
+            val marker =    MarkerOptions().position(locationlat).title("Location")
+                .snippet("Latittude: " + latitude + "  Longitude: " + longitude)
+
+            mMap!!.addMarker(
+                marker
+            ).showInfoWindow()
+
+            mMap!!.moveCamera(CameraUpdateFactory.newLatLng(locationlat))
         }
     }
 
@@ -82,18 +87,15 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
     }
 
 
+    @SuppressLint("MissingPermission")
     private fun loadLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
+        if (mLocationManager == null) {
+            mLocationManager =
+                mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            mLocationManager?.requestLocationUpdates(0, 0f, getCriteria(), this, null)
         }
-        mLocationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        mLocationManager?.requestLocationUpdates(0, 0f, getCriteria(), this, null)
-
     }
+
 
     private fun getCriteria(): Criteria {
         val criteria = Criteria()
@@ -106,12 +108,21 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
     }
 
     override fun onLocationChanged(p0: Location?) {
-        print("CHECKCONTENT")
+        Log.e("onLocationChanged1", "called")
         if (p0 != null) {
-            val sydney = LatLng(p0.latitude, p0.longitude)
-            markerName = mMap!!.addMarker(MarkerOptions().position(sydney).title("Race Start").snippet("Latitdude "+p0.latitude+"  Longidude "+p0.longitude).draggable(true))
-            mMap!!.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+            longitude = p0.longitude
+            latitude=p0.latitude
+            if (mMap!=null) {
+                val locationlat = LatLng(p0.latitude, p0.longitude)
+                mMap!!.addMarker(
+                    MarkerOptions().position(locationlat).title("Location")
+                        .snippet("Latitude: " + p0.latitude + "  Longitude: " + p0.longitude)
+                        .draggable(true)
+                ).showInfoWindow()
+                mMap!!.moveCamera(CameraUpdateFactory.newLatLng(locationlat))
+            }
             mLocationManager?.removeUpdates(this)
+            mLocationManager=null
         }
     }
 
@@ -127,14 +138,12 @@ class MapFragment: Fragment(), OnMapReadyCallback, LocationListener {
 
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         mLocationManager?.removeUpdates(this)
+        mLocationManager=null
     }
+
 
 
 

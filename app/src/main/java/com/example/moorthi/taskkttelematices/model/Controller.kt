@@ -1,7 +1,6 @@
-package com.example.moorthi.taskkttelematices
+package com.example.moorthi.taskkttelematices.model
 
 import android.util.Log
-import com.example.moorthi.taskkttelematices.model.LocationModel
 import io.realm.Realm
 import io.realm.RealmResults
 
@@ -29,7 +28,7 @@ class Controller {
         }
 
         fun delete(personId: Long) {
-            realm.executeTransaction { it ->
+            realm.executeTransaction {
                 it.where(LocationModel::class.java).equalTo("id", personId).findFirst()?.deleteFromRealm()
             }
         }
