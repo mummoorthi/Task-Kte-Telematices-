@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Task(kt telematices)</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyACLXwhHrm3yMGFkbVReaxPJjxrFek0kr4</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_lat">Enter latitude</string>
+    <string name="enter_lon">Enter longitude</string>
+    <string name="add">Add</string>
+
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditText
+        android:id="@+id/objlatitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:textColorHint="#E8526D"
+        android:textSize="16dp"
+        android:textColor="@color/black"
+        android:hint="@string/enter_lat"
+        />
+    <EditText
+        android:id="@+id/objlongtude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/objlatitude"
+        android:textColorHint="#E8526D"
+        android:hint="@string/enter_lon"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/objadd"
+        app:layout_constraintTop_toBottomOf="@id/objlongtude"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/add"
+        android:textColor="@color/white"
+        android:background="#6d00c1"
+        android:layout_marginTop="10dp"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
