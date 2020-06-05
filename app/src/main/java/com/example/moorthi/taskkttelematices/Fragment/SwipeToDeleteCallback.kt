@@ -93,10 +93,10 @@ abstract class SwipeToDeleteCallback internal constructor(var mContext: Context)
 
     init {
         mBackground = ColorDrawable()
-        backgroundColor = Color.parseColor("#b80f0a")
+        backgroundColor = Color.parseColor("#008000")
         mClearPaint = Paint()
         mClearPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        deleteDrawable = ContextCompat.getDrawable(mContext, R.mipmap.ic_delete)
+        deleteDrawable = ContextCompat.getDrawable(mContext, R.mipmap.ic_delete_)
         intrinsicWidth = deleteDrawable!!.intrinsicWidth
         intrinsicHeight = deleteDrawable.intrinsicHeight
     }
