@@ -1,32 +1,25 @@
 package com.example.moorthi.taskkttelematices.Fragment
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.moorthi.taskkttelematices.MainActivity
 import com.example.moorthi.taskkttelematices.R
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.example.moorthi.taskkttelematices.model.Controller
+import com.example.moorthi.taskkttelematices.model.LocationModel
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
@@ -37,6 +30,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     var mLocationManager: LocationManager? = null
     var latitude: Double? = null
     var longitude: Double? = null
+    var myList: MutableList<LocationModel> = mutableListOf<LocationModel>()
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,13 +53,46 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         var fab = view.findViewById(R.id.fabmap) as FloatingActionButton
 
         fab.setOnClickListener { view ->
-            val tabs =
-                (activity as MainActivity?)!!.findViewById<View>(R.id.tabs) as TabLayout
-            tabs.getTabAt(1)!!.select()
+             val realmObject = Controller.getLocations()
+            for (myRealmObject in realmObject!!) {
+                val fetchLo = LatLng(myRealmObject.lat, myRealmObject.lng)
+                mMap?.addMarker(
+                    MarkerOptions().position(fetchLo).title("").icon(
+                        BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    )
+                )
 
+                val currentLo = longitude?.let { latitude?.let { it1 -> LatLng(it1, it) } }
+                val marker = currentLo?.let {
+                    MarkerOptions().position(it).title("Location")
+                        .snippet("Latittude: " + latitude + "  Longitude: " + longitude)
+                }
+
+                mMap!!.addMarker(
+                    marker
+                ).showInfoWindow()
+                val polylineOptions = PolylineOptions()
+                polylineOptions.add(
+                    *arrayOf(
+                        fetchLo,
+                        currentLo
+                    )
+                )
+                mMap?.addPolyline(polylineOptions)
+                mMap?.animateCamera(CameraUpdateFactory.newLatLng(currentLo));
+            }
+
+
+          /*  val tabs =
+                (activity as MainActivity?)!!.findViewById<View>(R.id.tabs) as TabLayout
+            tabs.getTabAt(1)!!.select()*/
         }
+
         return view
     }
+
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -144,10 +173,32 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         mLocationManager=null
     }
 
+    fun drawPolyLineOnMap(list: List<LatLng?>) {
+        val polyOptions = PolylineOptions()
+        polyOptions.color(Color.RED)
+        polyOptions.width(5f)
+        polyOptions.addAll(list)
+        mMap?.clear()
+        mMap?.addPolyline(polyOptions)
+        val builder: LatLngBounds.Builder = LatLngBounds.Builder()
+        for (latLng in list) {
+            builder.include(latLng)
+        }
+        val bounds: LatLngBounds = builder.build()
 
+        //BOUND_PADDING is an int to specify padding of bound.. try 100.
+        val cu: CameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100)
+        mMap?.animateCamera(cu)
+    }
 
 
 }
+
+
+
+
+
+
 
 
 

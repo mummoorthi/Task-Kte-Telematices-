@@ -4,6 +4,7 @@ import android.util.Log
 import io.realm.Realm
 import io.realm.RealmResults
 
+
 class Controller {
     companion object {
         private val realm = Realm.getDefaultInstance()
@@ -32,7 +33,35 @@ class Controller {
                 it.where(LocationModel::class.java).equalTo("id", personId).findFirst()?.deleteFromRealm()
             }
         }
+
+        fun insertUser(firstname: String, lastname: String, email: String, password: String) {
+            val register = LoginModel()
+            //location.id = System.currentTimeMillis()
+            register.firstName = firstname
+            register.lastName = lastname
+            register.em = email
+            register.password = password
+            realm.executeTransactionAsync({
+                it.insert(register)
+            }, {
+                Log.e("inserted", "successfully")
+            }, {
+                Log.e("inserted", "failed ${it.printStackTrace()}")
+            })
+        }
+        fun getUser(): RealmResults<LoginModel> {
+            return realm.where(LoginModel::class.java).findAll()
+        }
+
+         fun getSingleRecord(email: String, password: String): RealmResults<LoginModel?>? {
+             if(email!=null && password!=null){
+                 return realm.where<LoginModel>(LoginModel::class.java)
+                     .equalTo("Em", email)
+                     .equalTo("Password", password)
+                     .findAll()
+             }
+           return null
+        }
     }
-
-
+    
 }

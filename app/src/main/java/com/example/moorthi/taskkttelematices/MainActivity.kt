@@ -3,6 +3,7 @@ package com.example.moorthi.taskkttelematices
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -22,12 +23,18 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     var mLocationManager: LocationManager? = null
     var adapter: MypagerAdapter? = null
+    var mContext: Appsevice? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         adapter = MypagerAdapter(supportFragmentManager)
         checkPermission()
-
+       // PermissionFragment()
+        mContext =   Appsevice()
+        val mIntent = Intent(this@MainActivity, Appsevice::class.java)
+        mIntent.putExtra("maxCountValue", 1000)
+        mContext?.enqueueWork(this@MainActivity, mIntent)
     }
 
     fun checkPermission() {
@@ -44,7 +51,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         tabs.visibility = View.VISIBLE
     }
 
-    private fun loadPermissionUI() {
+    fun loadPermissionUI() {
         adapter?.removeAllFragment()
         adapter?.addFragment(PermissionFragment(), "Permission")
         viewPager.adapter = adapter
