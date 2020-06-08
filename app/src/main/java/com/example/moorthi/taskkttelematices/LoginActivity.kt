@@ -54,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
                         if (email == myRealmObject.em) {
                             val i = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(i)
+                            finish()
                             clearTxt()
                             return true
                         } else {

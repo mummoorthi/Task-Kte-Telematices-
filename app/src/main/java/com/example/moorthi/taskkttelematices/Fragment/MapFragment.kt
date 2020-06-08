@@ -20,6 +20,7 @@ import com.example.moorthi.taskkttelematices.model.LocationModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.fragment_list.*
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
@@ -31,7 +32,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     var latitude: Double? = null
     var longitude: Double? = null
     var myList: MutableList<LocationModel> = mutableListOf<LocationModel>()
-
+    var fab: FloatingActionButton? = null
 
 
     override fun onCreateView(
@@ -46,14 +47,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         if (bundle != null) {
             latitude = arguments!!.getDouble("latitude")
             longitude = arguments!!.getDouble("logitude")
-
         } else {
             loadLocation()
         }
-        var fab = view.findViewById(R.id.fabmap) as FloatingActionButton
+         fab = view.findViewById(R.id.fabmap) as FloatingActionButton
+        loadPolyline()
+        return view
+    }
 
-        fab.setOnClickListener { view ->
-             val realmObject = Controller.getLocations()
+    private fun loadPolyline() {
+        print("CHECKVALUE ")
+        fab?.setOnClickListener { view ->
+            val realmObject = Controller.getLocations()
             for (myRealmObject in realmObject!!) {
                 val fetchLo = LatLng(myRealmObject.lat, myRealmObject.lng)
                 mMap?.addMarker(
@@ -84,22 +89,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             }
 
 
-          /*  val tabs =
-                (activity as MainActivity?)!!.findViewById<View>(R.id.tabs) as TabLayout
-            tabs.getTabAt(1)!!.select()*/
-        }
-
-        return view
-    }
-
+            /*  val tabs =
+                  (activity as MainActivity?)!!.findViewById<View>(R.id.tabs) as TabLayout
+              tabs.getTabAt(1)!!.select()*/
+        }    }
 
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        Log.e("map", "Ready")
         if (latitude != null && longitude != null) {
             val locationlat = LatLng(latitude!!, longitude!!)
-            val marker =    MarkerOptions().position(locationlat).title("Location")
+            val marker = MarkerOptions().position(locationlat).title("Location")
                 .snippet("Latittude: " + latitude + "  Longitude: " + longitude)
 
             mMap!!.addMarker(
@@ -108,8 +108,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
             mMap!!.moveCamera(CameraUpdateFactory.newLatLng(locationlat))
         }
-    }
 
+    }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context as MainActivity
@@ -173,26 +173,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         mLocationManager=null
     }
 
-    fun drawPolyLineOnMap(list: List<LatLng?>) {
-        val polyOptions = PolylineOptions()
-        polyOptions.color(Color.RED)
-        polyOptions.width(5f)
-        polyOptions.addAll(list)
-        mMap?.clear()
-        mMap?.addPolyline(polyOptions)
-        val builder: LatLngBounds.Builder = LatLngBounds.Builder()
-        for (latLng in list) {
-            builder.include(latLng)
-        }
-        val bounds: LatLngBounds = builder.build()
 
-        //BOUND_PADDING is an int to specify padding of bound.. try 100.
-        val cu: CameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-        mMap?.animateCamera(cu)
-    }
 
 
 }
+
 
 
 
